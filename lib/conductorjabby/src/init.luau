@@ -42,8 +42,12 @@ function ConductorJabby.new()
 end
 
 function ConductorJabby:attach(scheduler: typeof(Conductor.new()))
-	local jabbyScheduler = Jabby.scheduler.create()
 	local systemToId = {}
+	local jabbyScheduler = Jabby.scheduler.create()
+
+	function scheduler:get_jabby_scheduler()
+		return jabbyScheduler
+	end
 
 	local oldAdd = scheduler.add
 	function scheduler:add(system_definition: Conductor.SystemDefinition)

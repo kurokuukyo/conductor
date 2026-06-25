@@ -239,6 +239,10 @@ function Conductor.new()
 		return self
 	end
 
+	function scheduler:get_jabby_scheduler()
+		error("To use this method you need to use the ConductorJabby plugin.")
+	end
+
 	return scheduler
 end
 
