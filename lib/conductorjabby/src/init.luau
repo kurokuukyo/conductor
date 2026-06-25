@@ -43,6 +43,7 @@ end
 
 function ConductorJabby:attach(scheduler: typeof(Conductor.new()))
 	local systemToId = {}
+	local systemNameToId = {}
 	local jabbyScheduler = Jabby.scheduler.create()
 
 	function scheduler:get_jabby_scheduler()
@@ -51,8 +52,9 @@ function ConductorJabby:attach(scheduler: typeof(Conductor.new()))
 
 	local oldAdd = scheduler.add
 	function scheduler:add(system_definition: Conductor.SystemDefinition)
+		local system_name = get_system_name(system_definition)
 		local id = jabbyScheduler:register_system({
-			name = get_system_name(system_definition),
+			name = system_name,
 			type = 0,
 		})
 
@@ -66,33 +68,51 @@ function ConductorJabby:attach(scheduler: typeof(Conductor.new()))
 		local system = oldAdd(self, system_definition)
 
 		jabbyScheduler:set_system_data(id, {
-			phase = get_phase_name(system.step),
+			phase = get_phase_name(system.def.step),
 		})
 
-		systemToId[system.name] = id
+		systemNameToId[system_name] = id
+		systemToId[system] = id
 
 		jabbyScheduler:set_system_data(id, {
 			paused = false,
 			rate = step_map[system.step],
 		})
+
+		return system
+	end
+
+	local function remove_from_lookups(id: number)
+		for i, lookup in systemToId do
+			if lookup == id then
+				systemToId[i] = nil
+				break
+			end
+		end
+		for k, lookup in systemNameToId do
+			if lookup == id then
+				systemNameToId[k] = nil
+				break
+			end
+		end
 	end
 
 	local oldRemove = scheduler.remove
-	function scheduler:remove(name: string)
-		oldRemove(self, name)
+	function scheduler:remove(input: Conductor.SystemInternal | string)
+		oldRemove(self, input)
 
-		local id = systemToId[name]
+		local id = if typeof(input) == "string" then systemNameToId[input] else systemToId[input]
 		if id then
 			jabbyScheduler:remove_system(id)
-			systemToId[name] = nil
+			remove_from_lookups(id)
 		end
 	end
 
 	local oldPause = scheduler.pause
-	function scheduler:pause(name: string)
-		oldPause(self, name)
+	function scheduler:pause(input: Conductor.SystemInternal | string)
+		oldPause(self, input)
 
-		local id = systemToId[name]
+		local id = if typeof(input) == "string" then systemNameToId[input] else systemToId[input]
 		if id then
 			jabbyScheduler:set_system_data(id, {
 				paused = true,
