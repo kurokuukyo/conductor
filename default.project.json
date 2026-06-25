@@ -1,6 +1,6 @@
 {
-	"name": "root",
+	"name": "conductor",
 	"tree": {
-		"$path": "lib"
+		"$path": "src"
 	}
 }
