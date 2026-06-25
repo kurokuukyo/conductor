@@ -99,16 +99,10 @@ function Conductor.new()
 			RunService:BindToSimulation(update_fn, system.def.step :: Enum.StepFrequency, get_priority())
 	end
 
-	local function run_once(system: SystemInternal, update_fn: (dt: number) -> ())
-		task.spawn(update_fn, 0)
-	end
-
 	local function setup_binds(system: SystemInternal, update_fn: (dt: number) -> ())
 		local step = system.def.step
 
-		if step == Conductor.StepFrequency.RunOnce then
-			run_once(system, update_fn)
-		elseif step == Conductor.StepFrequency.Render then
+		if step == Conductor.StepFrequency.Render then
 			bind_on_render(system, update_fn)
 		elseif typeof(step) == "number" then
 			bind_on_arbitrary_hz(system, update_fn)
@@ -247,9 +241,6 @@ function Conductor.new()
 end
 
 Conductor.StepFrequency = {
-	--- System will only run once.
-	RunOnce = math.huge,
-
 	--- System will run on every frame. Only available on the client.
 	Render = 0,
 
