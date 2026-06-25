@@ -13,3 +13,5 @@ include = [
 ]
 
 private = true
+
+[dependencies]
