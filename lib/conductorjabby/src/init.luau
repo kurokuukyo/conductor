@@ -1,3 +1,7 @@
+--!optimize 2
+--!native
+--!strict
+
 local Jabby = require(script.Parent.Jabby)
 local Conductor = require(script.Parent.Conductor)
 

@@ -1,5 +1,6 @@
---!strict
 --!optimize 2
+--!native
+--!strict
 
 local RunService = game:GetService("RunService")
 local IS_CLIENT = RunService:IsClient()
@@ -64,7 +65,6 @@ end
 function Conductor.new()
 	local scheduler = {}
 	scheduler.systems = {} :: { [string]: System }
-	scheduler._plugins = {}
 
 	local current_priority = 2000
 	local function get_priority()
@@ -145,6 +145,28 @@ function Conductor.new()
 		return result :: { System }
 	end
 
+	--[=[
+		Adds a system to the scheduler.
+
+		Returns the internal entry associated with the system.
+
+		Usage:
+
+		```lua
+		local system = scheduler:add({
+			system = system_fn, -- Name of the system is based on this function name.
+			step = Conductor.StepFrequency.Hz60
+		})
+		```
+
+		The update function is passed the delta time and is defined as such:
+
+		```lua
+		local function system_fn(dt: number)
+			...
+		end
+		```
+	]=]
 	function scheduler:add(system_definition: SystemDefinition): System
 		if system_definition.step_client and IS_CLIENT then
 			system_definition.step = system_definition.step_client
@@ -205,6 +227,18 @@ function Conductor.new()
 		return system :: System
 	end
 
+	--[=[
+		Removes a system from the scheduler.
+
+		Both the string name and the result from `scheduler:add` are valid inputs.
+
+		Usage:
+
+		```lua
+		scheduler:remove("viewmodel_system")
+		scheduler:remove(viewmodel_system)
+		```
+	]=]
 	function scheduler:remove(input: SystemInternal | string)
 		local system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
 		if system then
@@ -214,6 +248,18 @@ function Conductor.new()
 		end
 	end
 
+	--[=[
+		Pauses a system from execution.
+
+		Both the string name and the result from `scheduler:add` are valid inputs.
+
+		Usage:
+
+		```lua
+		scheduler:pause("viewmodel_system")
+		scheduler:pause(viewmodel_system)
+		```
+	]=]
 	function scheduler:pause(input: SystemInternal | string)
 		local system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
 		if system then
@@ -221,6 +267,18 @@ function Conductor.new()
 		end
 	end
 
+	--[=[
+		Resumes execution for a system that was paused.
+
+		Both the string name and the result from `scheduler:add` are valid inputs.
+
+		Usage:
+
+		```lua
+		scheduler:resume("viewmodel_system")
+		scheduler:resume(viewmodel_system)
+		```
+	]=]
 	function scheduler:resume(input: SystemInternal | string)
 		local system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
 		if system then
@@ -228,11 +286,30 @@ function Conductor.new()
 		end
 	end
 
+	--[=[
+		Hooks plguins that can extend the functionality of Conductor.
+
+		Usage:
+
+		```lua
+		local scheduler = Conductor.new():register_plugin(ConductorJabby.new())
+		```
+	]=]
 	function scheduler:register_plugin(plugin: Plugin)
 		plugin:attach(self)
 		return self
 	end
 
+	--[=[
+		**Requires ConductorJabby.**
+
+		Gets the jabby scheduler associated with Conductor.
+		Usage:
+
+		```lua
+		local jabby_scheduler = scheduler:get_jabby_scheduler()
+		```
+	]=]
 	function scheduler:get_jabby_scheduler()
 		error("To use this method you need to use the ConductorJabby plugin.")
 	end
