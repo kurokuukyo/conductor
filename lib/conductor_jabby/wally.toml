@@ -16,4 +16,4 @@ private = true
 
 [dependencies]
 Jabby = "alicesaidhi/jabby@0.5.1"
-#Conductor = "kurokuukyo/conductor@0.1.0"
+Conductor = "kurokuukyo/conductor@0.1.0"
