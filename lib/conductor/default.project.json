@@ -1,6 +1,6 @@
 {
 	"name": "conductor",
 	"tree": {
-		"$path": "src/init.luau"
+		"$path": "src"
 	}
 }
