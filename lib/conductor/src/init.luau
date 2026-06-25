@@ -2,7 +2,7 @@
 --!optimize 2
 
 local RunService = game:GetService("RunService")
-const IS_CLIENT = RunService:IsClient()
+local IS_CLIENT = RunService:IsClient()
 
 local Conductor = {}
 
@@ -32,7 +32,7 @@ type SystemInternal = System & {
 	_connection: RBXScriptConnection?,
 }
 
-const ERRORS = {
+local ERRORS = {
 	DESYNCED_DEPENDENCY = "Attempt to depend on system with mismatched step sizes.\n"
 		.. '\n\tMain System "%s":'
 		.. "\n\t\tStep Size: %s"
@@ -44,9 +44,9 @@ const ERRORS = {
 	SYSTEM_DOES_NOT_EXIST = 'System "%s" does not exist. Was it properly added to the scheduler?',
 }
 
-const RUN_AFTER_TIMEOUT = 3
+local RUN_AFTER_TIMEOUT = 3
 
-const function get_system_name(system: SystemInternal)
+local function get_system_name(system: SystemInternal)
 	if system._name then
 		return system._name
 	end
@@ -67,23 +67,23 @@ function Conductor.new()
 	scheduler._plugins = {}
 
 	local current_priority = 2000
-	const function get_priority()
+	local function get_priority()
 		current_priority += 1
 		return current_priority
 	end
 
-	const function bind_on_render(system: SystemInternal, update_fn: (dt: number) -> ())
+	local function bind_on_render(system: SystemInternal, update_fn: (dt: number) -> ())
 		if not IS_CLIENT then
 			error(ERRORS.RENDERSTEPPED_ON_SERVER:format(get_system_name(system)))
 		end
 		system._connection = RunService.RenderStepped:Connect(update_fn)
 	end
 
-	const function bind_on_arbitrary_hz(system: SystemInternal, update_fn: (dt: number) -> ())
+	local function bind_on_arbitrary_hz(system: SystemInternal, update_fn: (dt: number) -> ())
 		local current_dt = 0
-		const interval = system.def.step :: number
+		local interval = system.def.step :: number
 
-		const function handle_tick(dt: number)
+		local function handle_tick(dt: number)
 			current_dt += dt
 			if current_dt >= interval then
 				update_fn(current_dt)
@@ -94,17 +94,17 @@ function Conductor.new()
 		system._connection = RunService:BindToSimulation(handle_tick, Enum.StepFrequency.Hz60, get_priority())
 	end
 
-	const function bind_on_hz(system: SystemInternal, update_fn: (dt: number) -> ())
+	local function bind_on_hz(system: SystemInternal, update_fn: (dt: number) -> ())
 		system._connection =
 			RunService:BindToSimulation(update_fn, system.def.step :: Enum.StepFrequency, get_priority())
 	end
 
-	const function run_once(system: SystemInternal, update_fn: (dt: number) -> ())
+	local function run_once(system: SystemInternal, update_fn: (dt: number) -> ())
 		task.spawn(update_fn, 0)
 	end
 
-	const function setup_binds(system: SystemInternal, update_fn: (dt: number) -> ())
-		const step = system.def.step
+	local function setup_binds(system: SystemInternal, update_fn: (dt: number) -> ())
+		local step = system.def.step
 
 		if step == Conductor.StepFrequency.RunOnce then
 			run_once(system, update_fn)
@@ -117,7 +117,7 @@ function Conductor.new()
 		end
 	end
 
-	const function verify_same_step_size(dependent: SystemInternal, system: SystemInternal)
+	local function verify_same_step_size(dependent: SystemInternal, system: SystemInternal)
 		if dependent.def.step ~= system.def.step then
 			error(
 				ERRORS.DESYNCED_DEPENDENCY:format(
@@ -130,7 +130,7 @@ function Conductor.new()
 		end
 	end
 
-	const function find_dependencies_recursive(tbl: RunAfter, system: SystemInternal, result: { System }?): { System }
+	local function find_dependencies_recursive(tbl: RunAfter, system: SystemInternal, result: { System }?): { System }
 		if not result then
 			result = {}
 		end
@@ -167,7 +167,7 @@ function Conductor.new()
 		} :: SystemInternal
 		local sys_name = get_system_name(system) -- Get this out of the way.
 
-		const system_fn = system.def.system
+		local system_fn = system.def.system
 
 		local function update_fn(dt: number)
 			if system.paused then
@@ -180,7 +180,7 @@ function Conductor.new()
 		if not system_definition.run_after then
 			setup_binds(system, update_fn)
 		else
-			const dependencies = find_dependencies_recursive(system.def.run_after :: RunAfter, system)
+			local dependencies = find_dependencies_recursive(system.def.run_after :: RunAfter, system)
 			local remaining = #dependencies
 			for _, dependency: SystemInternal in dependencies do
 				task.spawn(function()
@@ -212,7 +212,7 @@ function Conductor.new()
 	end
 
 	function scheduler:remove(input: SystemInternal | string)
-		const system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
+		local system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
 		if system then
 			local name = get_system_name(system)
 			system.remove()
@@ -221,14 +221,14 @@ function Conductor.new()
 	end
 
 	function scheduler:pause(input: SystemInternal | string)
-		const system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
+		local system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
 		if system then
 			system.paused = true
 		end
 	end
 
 	function scheduler:resume(input: SystemInternal | string)
-		const system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
+		local system: SystemInternal = if typeof(input) == "string" then self.systems[input] else input
 		if system then
 			system.paused = nil
 		end

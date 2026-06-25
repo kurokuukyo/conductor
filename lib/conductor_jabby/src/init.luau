@@ -28,8 +28,8 @@ local step_map = {
 	[1 / 20] = 20,
 }
 
-const function get_phase_name(step: Enum.StepFrequency | number)
-	const found_hz = step_map[step]
+local function get_phase_name(step: Enum.StepFrequency | number)
+	local found_hz = step_map[step]
 	if found_hz then
 		return `Hz{found_hz}`
 	end
@@ -41,7 +41,7 @@ const function get_phase_name(step: Enum.StepFrequency | number)
 	return `Hz{string.format("%u", 1 / step :: number)}`
 end
 
-const function get_system_name(system_definition: SystemDefinition)
+local function get_system_name(system_definition: SystemDefinition)
 	local name = debug.info(system_definition.system, "n")
 	if not name or string.len(name) == 0 then
 		local source, line = debug.info(system_definition.system, "s1")
@@ -69,7 +69,7 @@ function ConductorJabby:attach(scheduler: typeof(Conductor.new()))
 			type = 0,
 		})
 
-		const system_fn = system_definition.system
+		local system_fn = system_definition.system
 		function system_definition.system(dt: number)
 			jabbyScheduler:run(id, function()
 				system_fn(dt)
