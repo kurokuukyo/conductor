@@ -1,0 +1,7 @@
+{
+    "aliases": {
+        "conductor": "./lib/conductor/src",
+        "conductor_jabby": "./lib/conductor_jabby/src"
+    },
+    "languageMode": "strict"
+}

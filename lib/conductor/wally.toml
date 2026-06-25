@@ -1,0 +1,15 @@
+[package]
+name = "kurokuukyo/conductor"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+license = "MIT"
+include = [
+    "default.project.json",
+    "init.luau",
+    "wally.toml",
+    "README.md",
+    "LICENSE"
+]
+
+private = true

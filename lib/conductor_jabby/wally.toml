@@ -1,0 +1,19 @@
+[package]
+name = "kurokuukyo/conductorjabby"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+license = "MIT"
+include = [
+    "default.project.json",
+    "init.luau",
+    "wally.toml",
+    "README.md",
+    "LICENSE"
+]
+
+private = true
+
+[dependencies]
+Jabby = "alicesaidhi/jabby@0.5.1"
+#Conductor = "kurokuukyo/conductor@0.1.0"
