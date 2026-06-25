@@ -6,7 +6,7 @@ realm = "shared"
 license = "MIT"
 include = [
     "default.project.json",
-    "init.luau",
+    "src",
     "wally.toml",
     "README.md",
     "LICENSE"
