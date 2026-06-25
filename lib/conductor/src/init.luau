@@ -234,7 +234,8 @@ function Conductor.new()
 		end
 	end
 
-	function scheduler:register_plugin(plugin)
+	function scheduler:register_plugin(plugin: Plugin)
+		plugin:attach(self)
 		return self
 	end
 

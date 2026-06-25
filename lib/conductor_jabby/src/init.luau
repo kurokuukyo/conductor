@@ -1,4 +1,22 @@
 local Jabby = require(script.Parent.Jabby)
+local Conductor = require(script.Parent.Conductor)
+
+export type StepFrequency = Enum.StepFrequency | number
+
+export type RunAfter = System | { RunAfter }
+
+export type SystemDefinition = {
+	step: StepFrequency,
+	step_client: StepFrequency?,
+	run_after: RunAfter?,
+	system: (dt: number) -> (),
+}
+
+export type System = {
+	def: SystemDefinition,
+	paused: boolean?,
+	remove: () -> (),
+}
 
 local step_map = {
 	[Enum.StepFrequency.Hz60] = 60,
@@ -23,6 +41,16 @@ const function get_phase_name(step: Enum.StepFrequency | number)
 	return `Hz{string.format("%u", 1 / step :: number)}`
 end
 
+const function get_system_name(system_definition: SystemDefinition)
+	local name = debug.info(system_definition.system, "n")
+	if not name or string.len(name) == 0 then
+		local source, line = debug.info(system_definition.system, "s1")
+		name = `{source}:{line}`
+	end
+
+	return name
+end
+
 local ConductorJabby = {}
 ConductorJabby.__index = ConductorJabby
 
@@ -30,15 +58,28 @@ function ConductorJabby.new()
 	return setmetatable({}, ConductorJabby)
 end
 
-function ConductorJabby:attach(scheduler)
+function ConductorJabby:attach(scheduler: typeof(Conductor.new()))
 	local jabbyScheduler = Jabby.scheduler.create()
 	local systemToId = {}
 
-	function scheduler._wrapSystem(system, originalUpdate)
+	local oldAdd = scheduler.add
+	function scheduler:add(system_definition: SystemDefinition)
 		local id = jabbyScheduler:register_system({
-			name = system.name,
-			phase = get_phase_name(system.step), -- replace with real phase if you add one
+			name = get_system_name(system_definition),
 			type = 0,
+		})
+
+		const system_fn = system_definition.system
+		function system_definition.system(dt: number)
+			jabbyScheduler:run(id, function()
+				system_fn(dt)
+			end)
+		end
+
+		local system = oldAdd(self, system_definition)
+
+		jabbyScheduler:set_system_data(id, {
+			phase = get_phase_name(system.step),
 		})
 
 		systemToId[system.name] = id
@@ -47,12 +88,6 @@ function ConductorJabby:attach(scheduler)
 			paused = false,
 			rate = step_map[system.step],
 		})
-
-		return function(dt)
-			jabbyScheduler:run(id, function()
-				originalUpdate(dt)
-			end)
-		end
 	end
 
 	local oldRemove = scheduler.remove
