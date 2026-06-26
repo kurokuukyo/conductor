@@ -305,6 +305,7 @@ function Conductor.new()
 		**Requires ConductorJabby.**
 
 		Gets the jabby scheduler associated with Conductor.
+		
 		Usage:
 
 		```lua
