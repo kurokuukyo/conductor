@@ -19,9 +19,6 @@ local function get_phase_name(step: Enum.StepFrequency | number)
 	local found_hz = step_map[step]
 	if found_hz then
 		return `Hz{found_hz}`
-	end
-	if step == math.huge then
-		return `RunOnce`
 	elseif step == (1 / math.huge) then
 		return `Render`
 	end
