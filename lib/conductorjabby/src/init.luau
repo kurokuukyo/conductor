@@ -29,11 +29,16 @@ local function get_phase_name(step: Enum.StepFrequency | number)
 end
 
 local function get_system_name(system_definition: Conductor.SystemDefinition)
+	if system_definition._name then
+		return system_definition._name
+	end
 	local name = debug.info(system_definition.system, "n")
 	if not name or string.len(name) == 0 then
-		local source, line = debug.info(system_definition.system, "s1")
+		local source, line = debug.info(system_definition.system, "s"), debug.info(system_definition.system, "l")
 		name = `{source}:{line}`
 	end
+
+	system_definition._name = name
 
 	return name
 end

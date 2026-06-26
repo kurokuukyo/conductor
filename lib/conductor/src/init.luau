@@ -47,17 +47,18 @@ local ERRORS = {
 
 local RUN_AFTER_TIMEOUT = 3
 
-local function get_system_name(system: SystemInternal)
-	if system._name then
-		return system._name
+local function get_system_name(system: System)
+	local system_definition = system.def :: SystemDefinition & { _name: string? }
+	if (system_definition :: any)._name then
+		return system_definition._name
 	end
-	local name = debug.info(system.def.system, "n")
+	local name = debug.info(system_definition.system, "n")
 	if not name or string.len(name) == 0 then
-		local source, line = debug.info(system.def.system, "s1")
+		local source, line = debug.info(system_definition.system, "s"), debug.info(system_definition.system, "l")
 		name = `{source}:{line}`
 	end
 
-	system._name = name
+	(system_definition :: any)._name = name
 
 	return name
 end
