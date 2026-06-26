@@ -50,6 +50,7 @@ Jabby can integrate with Conductor by modifying the scheduler a little with the 
 local Conductor = require("@packages/Conductor")
 local ConductorJabby = require("@packages/ConductorJabby")
 local Jabby = require("@packages/Jabby")
+local world = require("@self/world") -- Not required for Conductor to function.
 
 local scheduler = Conductor.new()
     :register_plugin(ConductorJabby.new())
