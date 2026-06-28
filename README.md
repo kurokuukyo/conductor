@@ -12,7 +12,29 @@ Conductor:
 
 ## Installation
 
-TODO. This has not been published on wally, which will change once the API matures.
+This project is only available on GitHub right now due to the potential for huge API changes. There be dragons!
+
+To install the project right now, you can use pesde. Your pesde.toml should look like this once you're done:
+
+```toml
+conductor = { repo = "kurokuukyo/conductor", rev = "<insert commit you want to target>", path = "lib/conductor" }
+
+# Optional
+conductorjabby = { repo = "kurokuukyo/conductor", rev = "<insert commit you want to target>", path = "lib/conductorjabby" }
+
+[overrides]
+"conductorjabby>Conductor" = "conductor" # ConductorJabby won't always have the latest commit during this part of development in its dependencies.
+```
+
+If you want to patch Jabby to allow BindToSimulation to play nice, you can use the following:
+
+```toml
+jabby = { repo = "kurokuukyo/jabby", rev = "538ffd1" }
+
+...
+[overrides]
+"conductorjabby>Jabby" = "jabby"
+```
 
 ## Yet Another Scheduler?
 
@@ -45,6 +67,8 @@ local system2 = scheduler:add({
 ## Jabby
 
 Jabby can integrate with Conductor by modifying the scheduler a little with the ConductorJabby plugin.
+
+Jabby unfortunately does not play well with BindToSimulation events out of the gate. [This fork aims to fix that.](https://github.com/kurokuukyo/jabby/tree/0.2)
 
 ```lua
 local Conductor = require("@packages/Conductor")
