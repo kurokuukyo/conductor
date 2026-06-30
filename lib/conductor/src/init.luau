@@ -76,7 +76,7 @@ function Conductor.new()
 		if not IS_CLIENT then
 			error(ERRORS.RENDERSTEPPED_ON_SERVER:format(get_system_name(system)))
 		end
-		system._connection = RunService.RenderStepped:Connect(update_fn)
+		system._connection = RunService:BindToRenderStep(get_system_name(system), get_priority(), update_fn)
 	end
 
 	local function bind_on_arbitrary_hz(system: SystemInternal, update_fn: (dt: number) -> ())
