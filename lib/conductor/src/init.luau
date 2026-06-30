@@ -311,6 +311,14 @@ function Conductor.new()
 		error("To use this method you need to use the ConductorJabby plugin.")
 	end
 
+	if not IS_CLIENT then
+		game:BindToClose(function()
+			for id, system in scheduler.systems do
+				system.remove()
+			end
+		end)
+	end
+
 	return scheduler
 end
 
