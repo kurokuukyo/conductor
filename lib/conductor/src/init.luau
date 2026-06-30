@@ -13,7 +13,6 @@ export type RunAfter = System | { RunAfter }
 
 export type SystemDefinition = {
 	step: StepFrequency,
-	step_client: StepFrequency?,
 	run_after: RunAfter?,
 	system: (dt: number) -> (),
 }
@@ -169,10 +168,6 @@ function Conductor.new()
 		```
 	]=]
 	function scheduler:add(system_definition: SystemDefinition): System
-		if system_definition.step_client and IS_CLIENT then
-			system_definition.step = system_definition.step_client
-		end
-
 		local system: SystemInternal
 		system = {
 			def = system_definition,
